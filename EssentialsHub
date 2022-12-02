@@ -1,0 +1,848 @@
+game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.Rank.Text = "Essentials User"
+ 
+local repo = 'https://raw.githubusercontent.com/wally-rblx/LinoriaLib/main/'
+ 
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet('https://raw.githubusercontent.com/RevertHub/Color-Linoria/main/thememanager'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+ 
+local Window = Library:CreateWindow({
+ 
+    Title = 'Essentials Hub | South London 2',
+    Center = false, 
+    AutoShow = true,
+})
+ 
+-- You do not have to set your tabs & groups up this way, just a prefrence.
+local Tabs = {
+    -- Creates a new tab titled Main
+    Main = Window:AddTab('Main'),
+    Combat = Window:AddTab('Combat'),
+    Fun = Window:AddTab('Fun'),
+    Other = Window:AddTab('Other'),
+    ['UI Settings'] = Window:AddTab('UI Settings'),
+}
+ 
+ 
+ 
+ 
+ 
+-- // Main Section
+local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Main')
+local RightGroupBox = Tabs.Main:AddRightGroupbox('Spoofer')
+ 
+-- Infinite Stats
+LeftGroupBox:AddButton('Infinite Stats', function()
+    game:GetService"RunService".RenderStepped:Connect(function()
+        game.Players.LocalPlayer.Valuestats.Stamina.Value = 100
+        game.Players.LocalPlayer.Valuestats.Hunger.Value = 100
+    end)
+end)
+ 
+-- Infinite Skittles
+LeftGroupBox:AddButton('Infinite $kittles', function()
+    while wait() do
+        game:GetService("Players").LocalPlayer.PlayerGui.Run.Value.Value = true
+        game.Players.LocalPlayer.Character.Resistance.Value = true
+        game:GetService("Workspace").LocalPlayer.Resistance = true
+    end
+end)
+ 
+-- Infinite Karma
+LeftGroupBox:AddButton('Infinite Karma', function()
+    game.Players.LocalPlayer.Valuestats.Karma:Destroy()
+end)
+ 
+ 
+-- Anti-CameraBob
+LeftGroupBox:AddButton('Anti-CameraBob', function()
+    game:GetService"RunService".RenderStepped:Connect(function()
+        game.Players.LocalPlayer.PlayerGui.Camera_Bob.bobbing_global_scale.Value = 0
+    end)
+end)
+ 
+-- Fly
+local MyFly = LeftGroupBox:AddButton('Fly', function()
+        
+    local Settings = {
+	
+        Speed = 1.5,
+        SprintSpeed = 2,
+        ToggleKey = Enum.KeyCode.LeftAlt,
+        SprintKey = Enum.KeyCode.LeftControl,
+        
+        ForwardKey = Enum.KeyCode.W,
+        LeftKey = Enum.KeyCode.A,
+        BackwardKey = Enum.KeyCode.S,
+        RightKey = Enum.KeyCode.D,
+        UpKey = Enum.KeyCode.E,
+        DownKey = Enum.KeyCode.Q,
+        
+    }
+    
+    local Screen = Instance.new("ScreenGui",game.CoreGui)
+    local Distance = Instance.new("TextLabel",Screen)
+    Distance.BackgroundTransparency = 1
+    Distance.Size = UDim2.new(0,10,0,10)
+    Distance.ZIndex = 2
+    Distance.Text = "0"
+    Distance.TextStrokeTransparency = .5
+    Distance.TextSize = 20
+    Distance.TextStrokeColor3 = Color3.fromRGB(33, 33, 33)
+    Distance.Font = Enum.Font.Gotham
+    Distance.TextColor3 = Color3.new(1,1,1)
+    Distance.TextXAlignment = Enum.TextXAlignment.Left
+    Distance.TextYAlignment = Enum.TextYAlignment.Top
+    
+    
+    local Mouse = game.Players.LocalPlayer:GetMouse()
+    local Direction = Vector3.new(0,0,0)
+    local InterpolatedDir = Direction
+    local Tilt = 0
+    local InterpolatedTilt = Tilt
+    local RunService = game:GetService("RunService")
+    local Toggled = false
+    local Sprinting = false
+    local CameraPos = game.Workspace.CurrentCamera.CFrame.Position
+    
+    pcall(function()
+        game.Players.LocalPlayer.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Invisicam	
+    end)
+    
+    function Lerp(a, b, t)
+        return a + (b - a) * t
+    end
+    
+    local LastPos = nil
+    
+    function KeyHandler(actionName, userInputState)
+        if true and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            if actionName == "Toggle" and userInputState == Enum.UserInputState.Begin then
+                Toggled = not Toggled
+                if Toggled then
+                    LastPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+                    --game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
+                    game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true 
+                else
+                    LastPos = nil
+                    game.Players.LocalPlayer.Character.Humanoid.PlatformStand = false
+                    --game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
+                end
+            elseif actionName == "Forward" then
+                Tilt = userInputState == Enum.UserInputState.Begin and -20 or 0
+                Direction = Vector3.new(Direction.x,Direction.y,userInputState == Enum.UserInputState.Begin and -1 or 0)
+            elseif actionName == "Left" then
+                Direction = Vector3.new(userInputState == Enum.UserInputState.Begin and -1 or 0,Direction.y,Direction.z)
+            elseif actionName == "Backward" then
+                Tilt = userInputState == Enum.UserInputState.Begin and 20 or 0
+                Direction = Vector3.new(Direction.x,Direction.y,userInputState == Enum.UserInputState.Begin and 1 or 0)
+            elseif actionName == "Right" then
+                Direction = Vector3.new(userInputState == Enum.UserInputState.Begin and 1 or 0,Direction.y,Direction.z)
+            elseif actionName == "Up" then
+                Direction = Vector3.new(Direction.x,userInputState == Enum.UserInputState.Begin and 1 or 0,Direction.z)
+            elseif actionName == "Down" then
+                Direction = Vector3.new(Direction.x,userInputState == Enum.UserInputState.Begin and -1 or 0,Direction.z)
+            elseif actionName == "Sprint" then
+                Sprinting = userInputState == Enum.UserInputState.Begin
+            end
+        end
+    end
+    
+    
+    
+    game:GetService("UserInputService").InputBegan:connect(function(inputObject, gameProcessedEvent)
+        
+        if inputObject.KeyCode == Settings.ToggleKey then
+            KeyHandler("Toggle", Enum.UserInputState.Begin, inputObject)
+        elseif inputObject.KeyCode == Settings.ForwardKey then
+            KeyHandler("Forward", Enum.UserInputState.Begin, inputObject)
+        elseif inputObject.KeyCode == Settings.LeftKey then
+            KeyHandler("Left", Enum.UserInputState.Begin, inputObject)
+        elseif inputObject.KeyCode == Settings.BackwardKey then
+            KeyHandler("Backward", Enum.UserInputState.Begin, inputObject)
+        elseif inputObject.KeyCode == Settings.RightKey then
+            KeyHandler("Right", Enum.UserInputState.Begin, inputObject)
+        elseif inputObject.KeyCode == Settings.UpKey then	
+            KeyHandler("Up", Enum.UserInputState.Begin, inputObject)
+        elseif inputObject.KeyCode == Settings.DownKey then
+            KeyHandler("Down", Enum.UserInputState.Begin, inputObject)
+        elseif inputObject.KeyCode == Settings.SprintKey then
+            KeyHandler("Sprint", Enum.UserInputState.Begin, inputObject)
+        end
+        
+        
+    end)
+    
+    
+    game:GetService("UserInputService").InputEnded:connect(function(inputObject, gameProcessedEvent)
+        
+        if inputObject.KeyCode == Settings.ToggleKey then
+            KeyHandler("Toggle", Enum.UserInputState.End, inputObject)
+        elseif inputObject.KeyCode == Settings.ForwardKey then
+            KeyHandler("Forward", Enum.UserInputState.End, inputObject)
+        elseif inputObject.KeyCode == Settings.LeftKey then
+            KeyHandler("Left", Enum.UserInputState.End, inputObject)
+        elseif inputObject.KeyCode == Settings.BackwardKey then
+            KeyHandler("Backward", Enum.UserInputState.End, inputObject)
+        elseif inputObject.KeyCode == Settings.RightKey then
+            KeyHandler("Right", Enum.UserInputState.End, inputObject)
+        elseif inputObject.KeyCode == Settings.UpKey then	
+            KeyHandler("Up", Enum.UserInputState.End, inputObject)
+        elseif inputObject.KeyCode == Settings.DownKey then
+            KeyHandler("Down", Enum.UserInputState.End, inputObject)
+        elseif inputObject.KeyCode == Settings.SprintKey then
+            KeyHandler("Sprint", Enum.UserInputState.End, inputObject)
+        end
+        
+        
+    end)
+    
+    
+    RunService.RenderStepped:Connect(function()
+        if Toggled and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")  then
+            for i,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.Velocity = Vector3.new(0,0,0)
+                end
+            end
+            local RootPart = game.Players.LocalPlayer.Character.HumanoidRootPart
+            if LastPos then
+                Distance.Text = math.floor((LastPos-RootPart.Position).Magnitude+.5)
+                if (LastPos-RootPart.Position).Magnitude >= 20 then
+                    Distance.TextColor3 = Color3.new(1,0,0)
+                else
+                    Distance.TextColor3 = Color3.new(1,1,1)	
+                end
+            else
+                Distance.TextColor3 = Color3.new(1,1,1)
+                Distance.Text = 0
+            end
+            InterpolatedDir = InterpolatedDir:Lerp((Direction * (Sprinting and Settings.SprintSpeed or Settings.Speed)),.2)
+            InterpolatedTilt = Lerp(InterpolatedTilt ,Tilt* (Sprinting and 2 or 1),Tilt == 0 and .2 or .1)
+            RootPart.CFrame = RootPart.CFrame:Lerp(CFrame.new(RootPart.Position,RootPart.Position + Mouse.UnitRay.Direction) * CFrame.Angles(0,math.rad(00),0) * CFrame.new(InterpolatedDir)  * CFrame.Angles(math.rad(InterpolatedTilt),0,0),.2)
+        else
+            Distance.TextColor3 = Color3.new(1,1,1)
+            Distance.Text = 0
+        end	
+    end)
+end)  
+
+MyFly:AddTooltip('Toggle Key (LeftALT)')
+ 
+-- Level Changer    
+local function changeLevel(level)
+game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.Age.Text = "Level: " .. level
+end
+ 
+RightGroupBox:AddInput('Level Spoofer', {
+    Default = "ENTER CUSTOM LEVEL",
+    Numeric = true,
+    Finished = true,
+    Text = 'Level Spoofer',
+    Placeholder = 'Enter',
+})
+ 
+Options["Level Spoofer"]:OnChanged(function() changeLevel(Options["Level Spoofer"].Value) 
+end)
+ 
+-- Name Changer
+local function changename(name)
+    game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.NameLabel.Text = name
+end
+ 
+RightGroupBox:AddInput('Name Spoofer', {
+    Default = game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.NameLabel.Text;
+    Numeric = false,
+    Finished = true,
+    Text = 'Name Spoofer',
+    Placeholder = 'Enter',
+})
+Options["Name Spoofer"]:OnChanged(function() changename(Options["Name Spoofer"].Value)
+end)
+ 
+ 
+RightGroupBox:AddDivider('')
+RightGroupBox:AddLabel('Tags')
+ 
+-- Celeb Tag
+RightGroupBox:AddButton('Celeb', function()
+    game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.Rank.Text = ""
+    game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.IceD.Visible = false
+    game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.Celeb.Visible = true
+end)
+ 
+-- Iced Out Tag
+RightGroupBox:AddButton('Iced Out', function()
+    game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.Rank.Text = ""
+    game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.Celeb.Visible = false
+    game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.IceD.Visible = true
+end)
+ 
+ 
+ 
+-- Group/Premium Tag
+RightGroupBox:AddButton('Group/Premium', function()
+    game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.NameLabel.Group.Visible = true
+    game:GetService("Workspace")[game.Players.LocalPlayer.Name].Head.Gui.MainFrame.NameLabel.Premum.Visible = true
+end)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+-- // Combat Section
+local LeftGroupBox = Tabs.Combat:AddLeftGroupbox('Combat')
+ 
+ 
+ 
+ 
+-- Aimlock
+LeftGroupBox:AddButton('Aimlock', function()
+--The key bind to activate the aimlock is right click
+--FE Simple AimLock Script | Released Nov 2021 | Working.
+local Area = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local MyCharacter = LocalPlayer.Character
+local MyRoot = MyCharacter:FindFirstChild("HumanoidRootPart")
+local MyHumanoid = MyCharacter:FindFirstChild("Humanoid")
+local Mouse = LocalPlayer:GetMouse()
+local MyView = Area.CurrentCamera
+local MyTeamColor = LocalPlayer.TeamColor
+local HoldingM2 = false
+local Active = false
+local Lock = false
+local Epitaph = .187 ---Note: The Bigger The Number, The More Prediction.
+local HeadOffset = Vector3.new(0, .1, 0)
+ 
+_G.TeamCheck = false
+_G.AimPart = "HumanoidRootPart"
+_G.Sensitivity = 0
+_G.CircleSides = 64
+_G.CircleColor = Color3.fromRGB(255, 0, 130)
+_G.CircleTransparency = 0
+_G.CircleRadius = 200
+_G.CircleFilled = false
+_G.CircleVisible = true
+_G.CircleThickness = 1
+ 
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Position = Vector2.new(MyView.ViewportSize.X / 2, MyView.ViewportSize.Y / 2)
+FOVCircle.Radius = _G.CircleRadius
+FOVCircle.Filled = _G.CircleFilled
+FOVCircle.Color = _G.CircleColor
+FOVCircle.Visible = _G.CircleVisible
+FOVCircle.Transparency = _G.CircleTransparency
+FOVCircle.NumSides = _G.CircleSides
+FOVCircle.Thickness = _G.CircleThickness
+ 
+local function CursorLock()
+	UIS.MouseBehavior = Enum.MouseBehavior.LockCenter
+end
+local function UnLockCursor()
+	HoldingM2 = false Active = false Lock = false 
+	UIS.MouseBehavior = Enum.MouseBehavior.Default
+end
+function FindNearestPlayer()
+	local dist = math.huge
+	local Target = nil
+	for _, v in pairs(Players:GetPlayers()) do
+		if v ~= LocalPlayer and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("Humanoid").Health > 0 and v.Character:FindFirstChild("HumanoidRootPart") and v then
+			local TheirCharacter = v.Character
+			local CharacterRoot, Visible = MyView:WorldToViewportPoint(TheirCharacter[_G.AimPart].Position)
+			if Visible then
+				local RealMag = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(CharacterRoot.X, CharacterRoot.Y)).Magnitude
+				if RealMag < dist and RealMag < FOVCircle.Radius then
+					dist = RealMag
+					Target = TheirCharacter
+				end
+			end
+		end
+	end
+	return Target
+end
+ 
+UIS.InputBegan:Connect(function(Input)
+	if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+		HoldingM2 = true
+		Active = true
+		Lock = true
+		if Active then
+        	local The_Enemy = FindNearestPlayer()
+			while HoldingM2 do task.wait(.000001)
+				if Lock and The_Enemy ~= nil then
+					local Future = The_Enemy.HumanoidRootPart.CFrame + (The_Enemy.HumanoidRootPart.Velocity * Epitaph + HeadOffset)
+					MyView.CFrame = CFrame.lookAt(MyView.CFrame.Position, Future.Position)
+					CursorLock()
+				end
+			end
+		end
+	end
+end)
+UIS.InputEnded:Connect(function(Input)
+	if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+		UnLockCursor()
+	end
+end)
+game.StarterGui:SetCore("SendNotification", {Title = "Working.", Text = "Script made by Sinz [SL2Madness]", Duration = 10,})
+end)
+
+ 
+-- ESP
+LeftGroupBox:AddButton('ESP', function()
+    loadstring(game:HttpGet('https://pastebin.com/raw/Vv3mgJEd'))()
+end)
+ 
+-- Headbox Expander
+LeftGroupBox:AddButton('Headbox Expander', function()
+    print("ESSENTIALS RUN SL2")
+    function getplrsname()
+        for i,v in pairs(game:GetChildren()) do
+            if v.ClassName == "Players" then
+                return v.Name
+            end
+        end
+    end
+    local players = getplrsname()
+    local plr = game[players].LocalPlayer
+
+    while  wait(1) do
+        coroutine.resume(coroutine.create(function()
+            for _,v in pairs(game[players]:GetPlayers()) do
+                if v.Name ~= plr.Name and v.Character then
+                    v.Character.Head.CanCollide = false
+                    v.Character.Head.Material = "Plastic"
+                    v.Character.Head.Transparency = 0.4
+                    v.Character.Head.Size = Vector3.new(4.1,4.1,4.1)
+                end
+            end
+        end))
+    end
+end)
+ 
+-- Infinite Ammo
+LeftGroupBox:AddButton('Infinite Ammo', function()
+    local plr = game:GetService("Players").LocalPlayer
+local char = plr.Character
+local hum = char:FindFirstChildOfClass("Humanoid")
+local HoldingGun = false
+local HeldGunName
+for i,v in pairs(char:GetChildren()) do
+    if v:IsA("Tool") and v:FindFirstChild("Stats") then
+        HoldingGun = true
+        HeldGunName = v.Name
+        char[HeldGunName].Parent = plr.Backpack
+    end
+end
+char.ChildAdded:Connect(function(Child)
+    if Child.ClassName == "Tool" then
+        if Child:FindFirstChild("Stats") then
+            if Child.Stats.ClipSize.Value ~= "inf" then
+                if Child.Stats.ClipSize.Value ~= 0 then
+                    repeat
+                        task.wait()
+                    until Child.Stats.ClipSize.Value == 0
+                    Child.Stats.ClipSize.Value = "inf"
+                    Child.Stats.MaxAmmo.Value = "inf"
+                    char[Child.Name].Parent = plr.Backpack
+                    task.wait(0.2)
+                    plr.Backpack[Child.Name].Parent = char
+                else
+                    Child.Stats.ClipSize.Value = "inf"
+                    Child.Stats.MaxAmmo.Value = "inf"
+                    char[Child.Name].Parent = plr.Backpack
+                    task.wait(0.2)
+                    plr.Backpack[Child.Name].Parent = char
+                end
+            end
+        end
+    end
+end)
+if HoldingGun then
+    plr.Backpack[HeldGunName].Parent = char
+end
+end)
+
+ 
+ 
+-- // Fun Section
+local LeftGroupBox = Tabs.Fun:AddLeftGroupbox('Fun')
+ 
+ 
+-- Zombie Walk
+LeftGroupBox:AddButton('Zombie Walk', function()
+
+-- services
+local players = game:GetService("Players")
+local starterGui = game:GetService("StarterGui")
+-- objects
+local player = players.LocalPlayer
+local character = player.Character
+local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+local head, torso = character:FindFirstChild("Head"), character:FindFirstChild("UpperTorso")
+local resetBindable = Instance.new("BindableEvent")
+-- variables
+local destroyFunc, resetBindableConnection = character.Destroy, nil
+-- main
+-- initializes the permadeath
+player.Character = nil
+player.Character = character
+task.wait(players.RespawnTime + .05)
+
+humanoid.BreakJointsOnDeath = false
+humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+if humanoid.RigType == Enum.HumanoidRigType.R15 then
+   task.defer(destroyFunc, (head.Neck))
+end
+task.defer(destroyFunc, head) -- and we destroy the head
+
+resetBindableConnection = resetBindable.Event:Connect(function()
+   starterGui:SetCore("ResetButtonCallback", true)
+   resetBindableConnection:Disconnect()
+
+   if player.Character == character then
+       character:Destroy()
+       local daModel = Instance.new("Model")
+       local _daModelHumanoid = Instance.new("Humanoid")
+       _daModelHumanoid.Parent = daModel
+       player.Character = daModel
+
+       task.delay(players.RespawnTime, destroyFunc, daModel)
+   else
+       player.Character:BreakJoints()
+   end
+end)
+starterGui:SetCore("ResetButtonCallback", resetBindable)
+end)
+ 
+-- Anti-Ban
+LeftGroupBox:AddButton('Anti-Ban', function()
+    local X;
+X = hookmetamethod(game, "__namecall", function(self, ...)
+   if getnamecallmethod() == "Ban" then
+       local eval1 = {false}
+       local eval2 = {false}
+       local args = {...}
+       if debug.validlevel(3) and self.Parent == nil then
+           local stack = debug.getstack(3)
+           local counter = 0
+           local expected;
+           for i,v in pairs(stack) do
+               if v == game.Players.LocalPlayer.Name or v == "Ban" or v == "Packet" or v == "Network" then
+                   counter = counter + 1
+               elseif type(v) == "number" then
+                   if type(expected) == "number" then
+                       expected = expected + v
+                   else
+                       expected = v
+                   end
+               end
+           end
+           if counter == expected then
+               eval1 = {true, counter+5}
+           end
+       end
+       if eval1[1] then
+           if #args == eval1[2] then
+               local counter = 0
+               local outgoingkey;
+               for i,v in pairs(args) do
+                   if v == game.Players.LocalPlayer.Name or v == "Ban" or v == "Packet" or v == "Network" then
+                       counter = counter + 1
+                   elseif tostring(i) == "userdata: 0x000000001bdfb8ea" then --current outgoing key address, could change if roblox updates
+                       outgoingkey = v
+                   end
+                   if counter == eval1[2] then
+                       eval2 = {true, outgoingkey}
+                   end
+               end
+           end
+           if eval2[1] then
+               game:GetService("NetworkClient"):SetOutgoingKBPSLimit(0, outgoingkey) --stops ban packets (requires outgoing key to set it to 0)
+               game.Players.LocalPlayer:Kick("Game attempted to ban you but was blocked") --kicked because it'll detect the namecall being blocked
+               return wait(9e9)
+           end
+       end
+   end
+   return X(self, ...)
+end)
+end)
+ 
+-- Pick Up Tools
+LeftGroupBox:AddButton('Pick Up Tools', function()
+    
+    local g = game.Workspace.tools
+    while task.wait() do
+        for fk, fl in pairs((g:GetChildren())) do
+            if fl:IsA("Tool") and fl.Name == "Phone" or fl.Name == "Crate" then
+                else
+                game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(fl)
+            end
+        end
+    end
+end)
+
+ 
+-- Walkspeed
+local function changespeed(speed)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed
+end
+ 
+LeftGroupBox:AddSlider('WalkSpeed', {
+    Text = 'WalkSpeed',
+    Default = 6,
+    Min = 6,
+    Max = 35,
+    Rounding = 0,
+ 
+    Compact = false,
+})
+ 
+local Number = Options.WalkSpeed.Value
+Options["WalkSpeed"]:OnChanged(function() changespeed(Options["WalkSpeed"].Value) 
+end)
+ 
+-- JumpPower
+local function changejumppower(jump)
+    game.Players.LocalPlayer.Character.Humanoid.JumpPower = jump
+end
+ 
+LeftGroupBox:AddSlider('JumpPower', {
+    Text = 'JumpPower',
+    Default = 0,
+    Min = 0,
+    Max = 70,
+    Rounding = 0,
+ 
+    Compact = false,
+})
+ 
+local Number = Options.WalkSpeed.Value
+Options["JumpPower"]:OnChanged(function() changejumppower(Options["JumpPower"].Value) 
+end)
+ 
+ 
+ 
+ 
+ 
+-- // Other Section
+local LeftGroupBox = Tabs.Other:AddLeftGroupbox('Other')
+ 
+-- Chat Spy
+LeftGroupBox:AddButton('Chat Spy', function()
+    enabled = true
+    --if true will check your messages too
+    spyOnMyself = true
+    --if true will chat the logs publicly (fun, risky)
+    public = false
+    --if true will use /me to stand out
+    publicItalics = true
+    --customize private logs
+    privateProperties = {
+        Color = Color3.fromRGB(0,255,255); 
+        Font = Enum.Font.SourceSansBold;
+        TextSize = 18;
+    }
+    --////////////////////////////////////////////////////////////////
+    local StarterGui = game:GetService("StarterGui")
+    local Players = game:GetService("Players")
+    local player = Players.LocalPlayer
+    local saymsg = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest")
+    local getmsg = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("OnMessageDoneFiltering")
+    local instance = (_G.chatSpyInstance or 0) + 1
+    _G.chatSpyInstance = instance
+     
+    local function onChatted(p,msg)
+        if _G.chatSpyInstance == instance then
+            if p==player and msg:lower():sub(1,4)=="essentials" then
+                enabled = not enabled
+                wait(0.3)
+                privateProperties.Text = "{SPY "..(enabled and "EN" or "DIS").."ABLED}"
+                StarterGui:SetCore("ChatMakeSystemMessage",privateProperties)
+            elseif enabled and (spyOnMyself==true or p~=player) then
+                msg = msg:gsub("[\n\r]",''):gsub("\t",' '):gsub("[ ]+",' ')
+                local hidden = true
+                local conn = getmsg.OnClientEvent:Connect(function(packet,channel)
+                    if packet.SpeakerUserId==p.UserId and packet.Message==msg:sub(#msg-#packet.Message+1) and (channel=="All" or (channel=="Team" and public==false and Players[packet.FromSpeaker].Team==player.Team)) then
+                        hidden = false
+                    end
+                end)
+                wait(1)
+                conn:Disconnect()
+                if hidden and enabled then
+                    if public then
+                        saymsg:FireServer((publicItalics and "/me " or '').."{SPY} [".. p.Name .."]: "..msg,"All")
+                    else
+                        privateProperties.Text = "{SPY} [".. p.Name .."]: "..msg
+                        StarterGui:SetCore("ChatMakeSystemMessage",privateProperties)
+                    end
+                end
+            end
+        end
+    end
+     
+    for _,p in ipairs(Players:GetPlayers()) do
+        p.Chatted:Connect(function(msg) onChatted(p,msg) end)
+    end
+    Players.PlayerAdded:Connect(function(p)
+        p.Chatted:Connect(function(msg) onChatted(p,msg) end)
+    end)
+    privateProperties.Text = "{SPY "..(enabled and "EN" or "DIS").."ABLED}"
+    StarterGui:SetCore("ChatMakeSystemMessage",privateProperties)
+    local chatFrame = player.PlayerGui.Chat.Frame
+    chatFrame.ChatChannelParentFrame.Visible = true
+    chatFrame.ChatBarParentFrame.Position = chatFrame.ChatChannelParentFrame.Position+UDim2.new(UDim.new(),chatFrame.ChatChannelParentFrame.Size.Y)
+    end)
+    
+ 
+-- BTools
+LeftGroupBox:AddButton('BTools', function()
+	game.StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, true)
+    for index, child in pairs(game:GetService("Workspace"):GetChildren()) do
+       if child.ClassName == "Part" then
+           child.Locked = false
+       end
+       if child.ClassName == "MeshPart" then
+           child.Locked = false
+       end
+       if child.ClassName == "UnionOperation" then
+           child.Locked = false
+       end
+       if child.ClassName == "Model" then
+           for index, chil in pairs(child:GetChildren()) do
+               if chil.ClassName == "Part" then
+                   chil.Locked = false
+               end
+               if chil.ClassName == "MeshPart" then
+                   chil.Locked = false
+               end
+               if chil.ClassName == "UnionOperation" then
+                   chil.Locked = false
+               end
+               if chil.ClassName == "Model" then
+                   for index, childe in pairs(chil:GetChildren()) do
+                       if childe.ClassName == "Part" then
+                           childe.Locked = false
+                       end
+                       if childe.ClassName == "MeshPart" then
+                           childe.Locked = false
+                       end
+                       if childe.ClassName == "UnionOperation" then
+                           childe.Locked = false
+                       end
+                       if childe.ClassName == "Model" then
+                           for index, childeo in pairs(childe:GetChildren()) do
+                               if childeo.ClassName == "Part" then
+                                   childeo.Locked = false
+                               end
+                               if childeo.ClassName == "MeshPart" then
+                                   childeo.Locked = false
+                               end
+                               if childeo.ClassName == "UnionOperation" then
+                                   childeo.Locked = false
+                               end
+                               if childeo.ClassName == "Model" then
+                               end
+                           end
+                       end
+                   end
+               end
+           end
+       end
+    end
+    c = Instance.new("HopperBin", game:GetService("Players").LocalPlayer.Backpack)
+    c.BinType = Enum.BinType.Hammer
+    c = Instance.new("HopperBin", game:GetService("Players").LocalPlayer.Backpack)
+    c.BinType = Enum.BinType.Clone
+    c = Instance.new("HopperBin", game:GetService("Players").LocalPlayer.Backpack)
+    c.BinType = Enum.BinType.Grab
+end)
+
+ 
+-- Spam Chat
+LeftGroupBox:AddButton('Spam Chat', function()
+
+    while true do
+ 
+        wait(1)
+     local A_1 = "ESSENTIALS HUB^"-----message here
+     local A_2 = "All"
+     local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+     Event:FireServer(A_1, A_2)
+     end
+    end)
+ 
+-- Dupe
+LeftGroupBox:AddButton('Dupe!', function()
+    local Message = Instance.new("Message",workspace)
+Message.Text = ("Loading Crash Script")
+Message.Text = ("Loading Crash Script.")
+Message.Text = ("Loading Crash Script..")
+Message.Text = ("Loading Crash Script...")
+Message.Text = ("Sucessfully Loaded")
+Message.Text = ("HAHAHAHAHAHHAHAHAAHHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAAHAHAHAHAHAHAHAHAH")
+Message.Text = ("HAHAHAHAHAHHAHAHAAHHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAAHAHAHAHAHAHAHAHAH")
+Message.Text = ("HAHAHAHAHAHHAHAHAAHHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAAHAHAHAHAHAHAHAHAH")
+repeat
+	NeverStop = 1
+	Message.Text = ("HAHAHAHAHAHHAHAHAAHHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAAHAHAHAHAHAHAHAHAH")
+	local HAHAHAHAHAHHAHAHAAHHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAAHAHAHAHAHAHAHAHAH = Instance.new("Part",workspace)
+	Message.Text = ("HAHAHAHAHAHHAHAHAAHHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAAHAHAHAHAHAHAHAHAH")
+until
+NeverStop == 3
+end)
+ 
+ 
+ 
+ 
+ 
+ 
+Library:OnUnload(function()
+    print('Unloaded!')
+    Library.Unloaded = true
+end)
+ 
+ 
+ 
+ 
+ 
+-- UI Settings
+local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
+-- I set NoUI so it does not show up in the keybinds menu
+ 
+ 
+MenuGroup:AddButton('Unload', function() Library:Unload() end)
+MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'RightShift', NoUI = false, Text = 'Menu keybind' }) 
+ 
+Library.ToggleKeybind = Options.MenuKeybind -- Allows you to have a custom keybind for the menu
+ 
+ 
+ 
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+ 
+ 
+SaveManager:IgnoreThemeSettings() 
+ 
+ 
+SaveManager:SetIgnoreIndexes({ 'MenuKeybind' }) 
+ 
+ 
+ThemeManager:SetFolder('MyScriptHub')
+SaveManager:SetFolder('MyScriptHub/specific-game')
+ 
+ 
+SaveManager:BuildConfigSection(Tabs['UI Settings']) 
+ 
+ 
+ThemeManager:ApplyToTab(Tabs['UI Settings'])
+ 
